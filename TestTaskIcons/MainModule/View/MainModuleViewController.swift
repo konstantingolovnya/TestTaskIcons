@@ -15,7 +15,6 @@ class MainModuleViewController: UIViewController {
         let view = UISearchBar()
         view.placeholder = "Search icons"
         view.delegate = self
-//        view.showsCancelButton = true
         view.accessibilityIdentifier = "SearchBar"
         return view
     }()

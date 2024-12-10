@@ -126,5 +126,4 @@ final class DataProvider: DataProviderProtocol {
     func cancelLoadingQueryData() {
         apiService.cancelFetchingQueryData()
     }
-
 }

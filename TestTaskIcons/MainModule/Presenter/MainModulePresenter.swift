@@ -82,7 +82,7 @@ final class MainModulePresenter: MainModulePresenterProtocol {
                     }
                     let icons = self.mapIcons(from: fetchedIcons.icons)
                     self.view?.displayIcons(icons)
-                    self.fetchedIcons.append(contentsOf: fetchedIcons.icons)
+                    self.fetchedIcons = fetchedIcons.icons
                     self.totalCount = fetchedIcons.totalCount
                     self.currentOffset += self.pageSize
                 case .failure(let error):
