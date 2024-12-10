@@ -9,11 +9,11 @@ import XCTest
 @testable import TestTaskIcons
 
 final class TasksManagerTests: XCTestCase {
-    private var tasksManager: TasksManager!
+    private var tasksManager: TaskManager!
     private var mockTask: MockURLSessionDataTask!
     
     override func setUpWithError() throws {
-        tasksManager = TasksManager()
+        tasksManager = TaskManager()
         mockTask = MockURLSessionDataTask()
     }
 

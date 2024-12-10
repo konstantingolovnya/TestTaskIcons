@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B55F20A42D06CF9A0072F22B /* URLRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55F20A32D06CF990072F22B /* URLRequestBuilder.swift */; };
 		B567DD2D2CFFBEC200BEFFF2 /* AuthProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B567DD2C2CFFBEC200BEFFF2 /* AuthProvider.swift */; };
 		B567DD312D00106300BEFFF2 /* TasksManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B567DD302D00106300BEFFF2 /* TasksManagerTests.swift */; };
 		B567DD332D0019BE00BEFFF2 /* MainModulePresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B567DD322D0019BE00BEFFF2 /* MainModulePresenterTests.swift */; };
@@ -25,7 +26,7 @@
 		B5CF4B1D2CF6D362004A7B64 /* DatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B1C2CF6D362004A7B64 /* DatabaseService.swift */; };
 		B5CF4B222CF6F5CA004A7B64 /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B212CF6F5CA004A7B64 /* DataProvider.swift */; };
 		B5CF4B252CF7231B004A7B64 /* MainModulePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B242CF7231B004A7B64 /* MainModulePresenter.swift */; };
-		B5CF4B2A2CF97C91004A7B64 /* TasksManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B292CF97C91004A7B64 /* TasksManager.swift */; };
+		B5CF4B2A2CF97C91004A7B64 /* TaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B292CF97C91004A7B64 /* TaskManager.swift */; };
 		B5CF4B2C2CF985BD004A7B64 /* MainModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B2B2CF985BD004A7B64 /* MainModuleFactory.swift */; };
 		B5CF4B2E2CF9B7BD004A7B64 /* MainModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B2D2CF9B7BD004A7B64 /* MainModuleView.swift */; };
 		B5CF4B302CFAE303004A7B64 /* IconTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF4B2F2CFAE303004A7B64 /* IconTableViewCell.swift */; };
@@ -62,6 +63,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B55F20A32D06CF990072F22B /* URLRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestBuilder.swift; sourceTree = "<group>"; };
 		B567DD232CFD8B7700BEFFF2 /* TestTaskIcons.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestTaskIcons.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B567DD242CFD8B7700BEFFF2 /* TestTaskIconsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestTaskIconsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B567DD252CFD8B7700BEFFF2 /* TestTaskIconsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestTaskIconsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,7 +86,7 @@
 		B5CF4B1C2CF6D362004A7B64 /* DatabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseService.swift; sourceTree = "<group>"; };
 		B5CF4B212CF6F5CA004A7B64 /* DataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
 		B5CF4B242CF7231B004A7B64 /* MainModulePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainModulePresenter.swift; sourceTree = "<group>"; };
-		B5CF4B292CF97C91004A7B64 /* TasksManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksManager.swift; sourceTree = "<group>"; };
+		B5CF4B292CF97C91004A7B64 /* TaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskManager.swift; sourceTree = "<group>"; };
 		B5CF4B2B2CF985BD004A7B64 /* MainModuleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainModuleFactory.swift; sourceTree = "<group>"; };
 		B5CF4B2D2CF9B7BD004A7B64 /* MainModuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainModuleView.swift; sourceTree = "<group>"; };
 		B5CF4B2F2CFAE303004A7B64 /* IconTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconTableViewCell.swift; sourceTree = "<group>"; };
@@ -171,11 +173,12 @@
 			children = (
 				B5CF4B212CF6F5CA004A7B64 /* DataProvider.swift */,
 				B5CF4B162CF6CE63004A7B64 /* APIService.swift */,
-				B5CF4B292CF97C91004A7B64 /* TasksManager.swift */,
+				B5CF4B292CF97C91004A7B64 /* TaskManager.swift */,
 				B5CF4B1C2CF6D362004A7B64 /* DatabaseService.swift */,
 				B567DD2C2CFFBEC200BEFFF2 /* AuthProvider.swift */,
 				B567DD342D002F5900BEFFF2 /* ImageSaveService.swift */,
 				B567DD362D0115CC00BEFFF2 /* CancellableExecutor.swift */,
+				B55F20A32D06CF990072F22B /* URLRequestBuilder.swift */,
 			);
 			path = ServiceLayer;
 			sourceTree = "<group>";
@@ -352,8 +355,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5CF4AEB2CF6CDE8004A7B64 /* MainModuleViewController.swift in Sources */,
-				B5CF4B2A2CF97C91004A7B64 /* TasksManager.swift in Sources */,
+				B5CF4B2A2CF97C91004A7B64 /* TaskManager.swift in Sources */,
 				B5CF4B1D2CF6D362004A7B64 /* DatabaseService.swift in Sources */,
+				B55F20A42D06CF9A0072F22B /* URLRequestBuilder.swift in Sources */,
 				B5CF4B1B2CF6CED5004A7B64 /* MainModuleIconModel.swift in Sources */,
 				B567DD2D2CFFBEC200BEFFF2 /* AuthProvider.swift in Sources */,
 				B5CF4B252CF7231B004A7B64 /* MainModulePresenter.swift in Sources */,

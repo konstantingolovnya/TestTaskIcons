@@ -10,11 +10,13 @@ import UIKit
 
 protocol MainModulePresenterProtocol {
     var view: MainModuleViewProtocol? { get set }
+    var canLoadMore: Bool { get }
     
     func searchIcons(query: String)
     func loadImage(urlString: String, completion: @escaping (UIImage) -> Void)
     func cancelLoadingImage(urlString: String)
-    func saveIconToGallery(urlString: String, completion: @escaping (Result<Void, Error>) -> Void)
+    func saveImageToGallery(urlString: String, completion: @escaping (Result<Void, Error>) -> Void)
+    func loadMoreIcons(indexPaths: @escaping ([IndexPath]) -> Void)
 }
 
 protocol MainModuleViewProtocol: AnyObject {
@@ -23,15 +25,27 @@ protocol MainModuleViewProtocol: AnyObject {
     func stopSpinner()
     func showError(_ error: Error)
     func showEmpty()
+    func showNotFound(query: String)
+    func showProcessing(query: String)
+    func displayAdittionalIcons(_ icons: [MainModuleIconModel])
 }
 
 final class MainModulePresenter: MainModulePresenterProtocol {
     weak var view: MainModuleViewProtocol?
-    private var fetchedIcons: [Icon]?
+    private var fetchedIcons: [Icon] = []
+    
+    private var currentQuery = ""
+    private var totalCount = 0
+    private var currentOffset = 0
+    private let pageSize = 20
     
     private let dataProvider: DataProviderProtocol
     private let imageSaveService: ImageSaveServiceProtocol
     private let cancellableExecutor: CancellableExecutorProtocol
+    
+    var canLoadMore: Bool {
+        totalCount > fetchedIcons.count
+    }
     
     init(dataProvider: DataProviderProtocol, imageSaveService: ImageSaveServiceProtocol, cancellableExecutor: CancellableExecutorProtocol) {
         self.dataProvider = dataProvider
@@ -43,29 +57,89 @@ final class MainModulePresenter: MainModulePresenterProtocol {
         cancellableExecutor.execute(delay: .seconds(1)) { [weak self] isCancelled in
             guard let self, !isCancelled else { return }
             
+            resetPagination()
+            
             guard !query.isEmpty else {
+                dataProvider.cancelLoadingQueryData()
+                view?.stopSpinner()
                 view?.showEmpty()
                 return
             }
             
-            view?.startSpinner()
+            currentQuery = query
             
-            dataProvider.loadIcons(query: query) { [weak self] result in
-                guard let self else { return }
-                view?.stopSpinner()
+            view?.startSpinner()
+            view?.showProcessing(query: query)
+            
+            dataProvider.loadIcons(query: query, count: pageSize, offset: currentOffset) { result in
+                self.view?.stopSpinner()
                 
                 switch result {
                 case .success(let fetchedIcons):
                     guard !fetchedIcons.icons.isEmpty else {
-                        view?.showEmpty()
+                        self.view?.showNotFound(query: query)
                         return
                     }
-                    let icons = mapIcons(from: fetchedIcons.icons)
-                    view?.displayIcons(icons)
-                    self.fetchedIcons = fetchedIcons.icons
+                    let icons = self.mapIcons(from: fetchedIcons.icons)
+                    self.view?.displayIcons(icons)
+                    self.fetchedIcons.append(contentsOf: fetchedIcons.icons)
+                    self.totalCount = fetchedIcons.totalCount
+                    self.currentOffset += self.pageSize
                 case .failure(let error):
-                    view?.showError(error)
+                    self.view?.showError(error)
                 }
+            }
+        }
+    }
+    
+    func loadImage(urlString: String, completion: @escaping (UIImage) -> Void) {
+        dataProvider.loadPreviewImage(url: urlString) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let loadedImage):
+                completion(loadedImage)
+            case .failure(let error):
+                view?.showError(error)
+            }
+        }
+    }
+    
+    func cancelLoadingImage(urlString: String) {
+        dataProvider.cancelLoadingImageData(id: urlString)
+    }
+    
+    func saveImageToGallery(urlString: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        dataProvider.loadFullImage(url: urlString) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let loadedImage):
+                imageSaveService.save(loadedImage, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func loadMoreIcons(indexPaths: @escaping ([IndexPath]) -> Void) {
+        dataProvider.loadIcons(query: currentQuery, count: pageSize, offset: currentOffset) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let fetchedIcons):
+                guard !fetchedIcons.icons.isEmpty else {
+                    return
+                }
+                
+                let icons = mapIcons(from: fetchedIcons.icons)
+                view?.displayAdittionalIcons(icons)
+                let startIndex = self.fetchedIcons.count
+                self.fetchedIcons.append(contentsOf: fetchedIcons.icons)
+                let endIndex = self.fetchedIcons.count
+                currentOffset += self.pageSize
+                let newIndexPath = (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
+                indexPaths(newIndexPath)
+            case .failure(let error):
+                view?.showError(error)
             }
         }
     }
@@ -91,31 +165,11 @@ final class MainModulePresenter: MainModulePresenterProtocol {
         }
     }
     
-    func loadImage(urlString: String, completion: @escaping (UIImage) -> Void) {
-        dataProvider.loadPreviewImage(url: urlString) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let loadedImage):
-                completion(loadedImage)
-            case .failure(let error):
-                view?.showError(error)
-            }
-        }
-    }
-    
-    func cancelLoadingImage(urlString: String) {
-        dataProvider.cancelLoadingImage(url: urlString)
-    }
-    
-    func saveIconToGallery(urlString: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        dataProvider.loadImage(url: urlString) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let loadedImage):
-                imageSaveService.save(loadedImage, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    private func resetPagination() {
+        fetchedIcons = []
+        currentQuery = ""
+        totalCount = 0
+        currentOffset = 0
     }
 }
+

@@ -63,7 +63,7 @@ final class MainModulePresenterTests: XCTestCase {
             }
         }
         
-        func cancelLoadingImage(url: String) {
+        func cancelLoadingImageData(url: String) {
             cancelledURLs.append(url)
         }
     }
@@ -182,7 +182,7 @@ final class MainModulePresenterTests: XCTestCase {
         
         let expectation = XCTestExpectation(description: "Image saved")
 
-            self.presenter!.saveIconToGallery(urlString: mockDownloadURL) { result in
+            self.presenter!.saveImageToGallery(urlString: mockDownloadURL) { result in
                 switch result {
                 case .success:
                     expectation.fulfill()
@@ -199,7 +199,7 @@ final class MainModulePresenterTests: XCTestCase {
         mockDataProvider!.imageResult = .failure(NSError(domain: "InvalidURL", code: 1))
         
         let expectation = XCTestExpectation(description: "Save failed")
-        presenter!.saveIconToGallery(urlString: mockDownloadURL) { result in
+        presenter!.saveImageToGallery(urlString: mockDownloadURL) { result in
             switch result {
             case .success:
                 XCTFail()

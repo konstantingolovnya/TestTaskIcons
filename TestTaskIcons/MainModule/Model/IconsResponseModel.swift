@@ -8,7 +8,13 @@
 import Foundation
 
 struct IconsResponseModel: Codable {
+    let totalCount: Int
     let icons: [Icon]
+    
+    enum CodingKeys: String, CodingKey {
+        case totalCount = "total_count"
+        case icons
+    }
 }
 
 struct Icon: Codable {

@@ -14,9 +14,10 @@ protocol MainModuleFactoryProtocol {
 final class MainModuleFactory: MainModuleFactoryProtocol {
     
     func makeMainModuleViewController() -> MainModuleViewController {
-        let tasksManager = TasksManager()
+        let taskManager = TaskManager()
         let authProvider = AuthProvider()
-        let apiService = APIService(authProvider: authProvider, tasksManager: tasksManager)
+        let requestBuider = URLRequestBuilder(authProvider: authProvider)
+        let apiService = APIService(taskManager: taskManager, requestBuilder: requestBuider)
         let databaseService = DatabaseService()
         let imageSaveService = ImageSaveService()
         let cancellableExecutor = CancellableExecutor()

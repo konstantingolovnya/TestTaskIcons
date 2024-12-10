@@ -15,7 +15,7 @@ class MainModuleViewController: UIViewController {
         let view = UISearchBar()
         view.placeholder = "Search icons"
         view.delegate = self
-        view.showsCancelButton = true
+//        view.showsCancelButton = true
         view.accessibilityIdentifier = "SearchBar"
         return view
     }()
@@ -50,11 +50,6 @@ extension MainModuleViewController: UISearchBarDelegate {
         guard let query = searchBar.text else { return }
         presenter.searchIcons(query: query)
     }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = ""
-        mainModuleView.showEmptyView()
-    }
 }
 
 extension MainModuleViewController: MainModuleViewProtocol {
@@ -65,6 +60,10 @@ extension MainModuleViewController: MainModuleViewProtocol {
     
     func displayIcons(_ icons: [MainModuleIconModel]) {
         mainModuleView.update(icons)
+    }
+    
+    func displayAdittionalIcons(_ icons: [MainModuleIconModel]) {
+        mainModuleView.addNew(icons)
     }
     
     func startSpinner() {
@@ -78,5 +77,13 @@ extension MainModuleViewController: MainModuleViewProtocol {
     func showError(_ error: any Error) {
         print("Show error")
         print(error.localizedDescription)
+    }
+    
+    func showNotFound(query: String) {
+        mainModuleView.showNotFoundView(query: query)
+    }
+    
+    func showProcessing(query: String) {
+        mainModuleView.showProcessingView(query: query)
     }
 }

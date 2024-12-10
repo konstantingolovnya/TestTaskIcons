@@ -7,14 +7,14 @@
 
 import Foundation
 
-protocol TasksManagerProtocol {
+protocol TaskManagerProtocol {
     func add(urlString: String, task: URLSessionDataTask)
     func remove(urlString: String)
     func cancel(urlString: String)
 }
 
-final class TasksManager: TasksManagerProtocol {
-    private var runningRequests: [String: URLSessionDataTask] = [:]
+final class TaskManager: TaskManagerProtocol {
+    private var runningTasks: [String: URLSessionDataTask] = [:]
     private let lock = NSLock()
     
     deinit {
@@ -28,20 +28,20 @@ final class TasksManager: TasksManagerProtocol {
     
     func add(urlString: String, task: URLSessionDataTask) {
         lock.withLock {
-            runningRequests[urlString] = task
+            runningTasks[urlString] = task
         }
     }
     
     func remove(urlString: String) {
         lock.withLock {
-            self.runningRequests[urlString] = nil
+            self.runningTasks[urlString] = nil
         }
     }
     
     func cancel(urlString: String) {
         lock.withLock {
-            runningRequests[urlString]?.cancel()
-            runningRequests[urlString] = nil
+            runningTasks[urlString]?.cancel()
+            runningTasks[urlString] = nil
         }
     }
     
@@ -49,15 +49,15 @@ final class TasksManager: TasksManagerProtocol {
         lock.lock()
         defer { lock.unlock() }
 
-        return runningRequests
+        return runningTasks
     }
     
     private func cancelAllTasks() {
         lock.withLock {
-            runningRequests.forEach { (_, task) in
+            runningTasks.forEach { (_, task) in
                 task.cancel()
             }
-            runningRequests.removeAll()
+            runningTasks.removeAll()
         }
     }
 }

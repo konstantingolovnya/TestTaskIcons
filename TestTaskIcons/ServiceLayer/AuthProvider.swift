@@ -14,8 +14,11 @@ protocol AuthProviderProtocol {
 final class AuthProvider: AuthProviderProtocol {
     private var authKey: String?
     
-    func modifyRequest(_ request: URLRequest) -> URLRequest {
+    init() {
         authKey = getAuthToken()
+    }
+    
+    func modifyRequest(_ request: URLRequest) -> URLRequest {
         guard let authKey else { return request }
         
         var modifiedRequest = request
@@ -24,7 +27,7 @@ final class AuthProvider: AuthProviderProtocol {
         return modifiedRequest
     }
     
-    func getAuthToken() -> String? {
+    private func getAuthToken() -> String? {
         return "yD3H3pbRbXPPvGOEUWaeDAgT2FRJLEsIQUxusgeGltDuP3PvWoLZGVF9VuVjR85p"
     }
 }

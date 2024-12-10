@@ -8,7 +8,7 @@
 import UIKit
 
 final class MainModuleView: UIView {  
-    private var icons: [MainModuleIconModel]?
+    private var icons: [MainModuleIconModel] = []
     private var presenter: MainModulePresenterProtocol
     
     private lazy var tableView: UITableView = {
@@ -48,6 +48,12 @@ final class MainModuleView: UIView {
         emptyView.isHidden = true
     }
     
+    func addNew(_ icons: [MainModuleIconModel]) {
+        self.icons.append(contentsOf: icons)
+        tableView.isHidden = false
+        emptyView.isHidden = true
+    }
+    
     func startSpinner() {
         spinner.startAnimating()
     }
@@ -57,6 +63,19 @@ final class MainModuleView: UIView {
     }
     
     func showEmptyView() {
+        emptyView.setMessageText("Use search to display icons")
+        emptyView.isHidden = false
+        tableView.isHidden = true
+    }
+    
+    func showNotFoundView(query: String) {
+        emptyView.setMessageText("Nothing found for the request \"\(query)\"")
+        emptyView.isHidden = false
+        tableView.isHidden = true
+    }
+    
+    func showProcessingView(query: String) {
+        emptyView.setMessageText("Searching for icons by request \"\(query)\"")
         emptyView.isHidden = false
         tableView.isHidden = true
     }
@@ -65,12 +84,11 @@ final class MainModuleView: UIView {
 extension MainModuleView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let icons else { return }
         
         let icon = icons[indexPath.row]
         let downloadURLString = icon.downloadURL
         
-        presenter.saveIconToGallery(urlString: downloadURLString) { result in
+        presenter.saveImageToGallery(urlString: downloadURLString) { result in
             switch result {
             case .success:
                 print("Image saved to gallery")
@@ -79,15 +97,23 @@ extension MainModuleView: UITableViewDelegate {
             }
         }
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == icons.count - 6, presenter.canLoadMore {
+            presenter.loadMoreIcons { indexPaths in
+                tableView.insertRows(at: indexPaths, with: .fade)
+            }
+        }
+    }
 }
 
 extension MainModuleView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        icons?.count ?? 0
+        icons.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let icons, let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: IconTableViewCell.self)) as? IconTableViewCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: IconTableViewCell.self)) as? IconTableViewCell else {
             return UITableViewCell()
         }
         let icon = icons[indexPath.row]
