@@ -89,18 +89,15 @@ final class MainModulePresenterTests: XCTestCase {
 
     func testLoadMoreIconsSuccess() {
         let icons = [Icon(iconID: 1, tags: ["test"], rasterSizes: [RasterSize(size: 1, sizeWidth: 1, sizeHeight: 1, formats: [IconFormat(format: "png", previewURL: "testUrl", downloadURL: "testUrl/2")])])]
+        
         mockDataProvider.mockResult = .success(IconsResponseModel(totalCount: 1, icons: icons))
-        var newIndexPaths: [IndexPath] = []
 
-        presenter.loadMoreIcons { indexPaths in
-            newIndexPaths = indexPaths
-        }
+        presenter.loadMoreIcons(index: 1)
 
-        XCTAssertTrue(mockView.displayAdditionalIconsCalled)
         XCTAssertEqual(mockView.additionalIcons.count, 1)
-        XCTAssertEqual(newIndexPaths.count, 1)
+        XCTAssertEqual(mockView.insertedIndexPaths.count, 1)
     }
-
+    
     func testSaveImageToGallerySuccess() {
         mockDataProvider.mockImageResult = .success(UIImage())
         var saveResult: Result<Void, Error>?
@@ -115,11 +112,12 @@ final class MainModulePresenterTests: XCTestCase {
 }
 
 final class MockMainModuleView: MainModuleViewProtocol {
+    
     var startSpinnerCalled = false
     var stopSpinnerCalled = false
     var showEmptyCalled = false
     var showErrorCalled = false
-    var displayAdditionalIconsCalled = false
+    var insertedIndexPaths: [IndexPath] = []
 
     var icons: [MainModuleIconModel] = []
     var additionalIcons: [MainModuleIconModel] = []
@@ -127,11 +125,6 @@ final class MockMainModuleView: MainModuleViewProtocol {
 
     func displayIcons(_ icons: [MainModuleIconModel]) {
         self.icons = icons
-    }
-
-    func displayAdittionalIcons(_ icons: [MainModuleIconModel]) {
-        displayAdditionalIconsCalled = true
-        additionalIcons = icons
     }
 
     func startSpinner() {
@@ -151,9 +144,14 @@ final class MockMainModuleView: MainModuleViewProtocol {
         showEmptyCalled = true
     }
 
-    func showNotFound(query: String) {}
+    func showNotFound(query: String) { }
 
-    func showProcessing(query: String) {}
+    func showProcessing(query: String) { }
+    
+    func displayAdittionalIcons(_ icons: [MainModuleIconModel], at indexPaths: [IndexPath]) {
+            additionalIcons.append(contentsOf: icons)
+            insertedIndexPaths.append(contentsOf: indexPaths)
+        }
 }
 
 final class MockDataProvider: DataProviderProtocol {

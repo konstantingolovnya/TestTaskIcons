@@ -10,13 +10,12 @@ import UIKit
 
 protocol MainModulePresenterProtocol {
     var view: MainModuleViewProtocol? { get set }
-    var canLoadMore: Bool { get }
     
     func searchIcons(query: String)
     func loadImage(urlString: String, completion: @escaping (UIImage) -> Void)
     func cancelLoadingImage(urlString: String)
     func saveImageToGallery(urlString: String, completion: @escaping (Result<Void, Error>) -> Void)
-    func loadMoreIcons(indexPaths: @escaping ([IndexPath]) -> Void)
+    func loadMoreIcons(index: Int)
 }
 
 protocol MainModuleViewProtocol: AnyObject {
@@ -27,12 +26,12 @@ protocol MainModuleViewProtocol: AnyObject {
     func showEmpty()
     func showNotFound(query: String)
     func showProcessing(query: String)
-    func displayAdittionalIcons(_ icons: [MainModuleIconModel])
+    func displayAdittionalIcons(_ icons: [MainModuleIconModel], at indexPaths: [IndexPath])
 }
 
 final class MainModulePresenter: MainModulePresenterProtocol {
     weak var view: MainModuleViewProtocol?
-    private var fetchedIcons: [Icon] = []
+    private var icons: [MainModuleIconModel] = []
     
     private var currentQuery = ""
     private var totalCount = 0
@@ -42,10 +41,6 @@ final class MainModulePresenter: MainModulePresenterProtocol {
     private let dataProvider: DataProviderProtocol
     private let imageSaveService: ImageSaveServiceProtocol
     private let cancellableExecutor: CancellableExecutorProtocol
-    
-    var canLoadMore: Bool {
-        totalCount > fetchedIcons.count
-    }
     
     init(dataProvider: DataProviderProtocol, imageSaveService: ImageSaveServiceProtocol, cancellableExecutor: CancellableExecutorProtocol) {
         self.dataProvider = dataProvider
@@ -82,7 +77,7 @@ final class MainModulePresenter: MainModulePresenterProtocol {
                     }
                     let icons = self.mapIcons(from: fetchedIcons.icons)
                     self.view?.displayIcons(icons)
-                    self.fetchedIcons = fetchedIcons.icons
+                    self.icons = icons
                     self.totalCount = fetchedIcons.totalCount
                     self.currentOffset += self.pageSize
                 case .failure(let error):
@@ -120,24 +115,24 @@ final class MainModulePresenter: MainModulePresenterProtocol {
         }
     }
     
-    func loadMoreIcons(indexPaths: @escaping ([IndexPath]) -> Void) {
+    func loadMoreIcons(index: Int) {
+        let currenMaxIndex = icons.count - 1
+        guard index >= currenMaxIndex else { return }
+        
         dataProvider.loadIcons(query: currentQuery, count: pageSize, offset: currentOffset) { [weak self] result in
             guard let self else { return }
             
             switch result {
             case .success(let fetchedIcons):
-                guard !fetchedIcons.icons.isEmpty else {
-                    return
-                }
+                guard !fetchedIcons.icons.isEmpty else { return }
                 
                 let icons = mapIcons(from: fetchedIcons.icons)
-                view?.displayAdittionalIcons(icons)
-                let startIndex = self.fetchedIcons.count
-                self.fetchedIcons.append(contentsOf: fetchedIcons.icons)
-                let endIndex = self.fetchedIcons.count
-                currentOffset += self.pageSize
-                let newIndexPath = (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
-                indexPaths(newIndexPath)
+                let startIndex = self.icons.count
+                self.icons.append(contentsOf: icons)
+                let endIndex = self.icons.count
+                currentOffset += pageSize
+                let newIndexPaths = (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
+                view?.displayAdittionalIcons(icons, at: newIndexPaths)
             case .failure(let error):
                 view?.showError(error)
             }
@@ -166,7 +161,7 @@ final class MainModulePresenter: MainModulePresenterProtocol {
     }
     
     private func resetPagination() {
-        fetchedIcons = []
+        icons = []
         currentQuery = ""
         totalCount = 0
         currentOffset = 0

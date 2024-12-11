@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class MainModuleView: UIView {  
+final class MainModuleView: UIView {
     private var icons: [MainModuleIconModel] = []
     private var presenter: MainModulePresenterProtocol
     
@@ -19,6 +19,7 @@ final class MainModuleView: UIView {
         view.showsVerticalScrollIndicator = false
         view.dataSource = self
         view.delegate = self
+        view.prefetchDataSource = self
         return view
     }()
     
@@ -48,8 +49,13 @@ final class MainModuleView: UIView {
         emptyView.isHidden = true
     }
     
-    func addNew(_ icons: [MainModuleIconModel]) {
+    func addNew(_ icons: [MainModuleIconModel], at indexPaths: [IndexPath]) {
         self.icons.append(contentsOf: icons)
+        
+        tableView.beginUpdates()
+        tableView.insertRows(at: indexPaths, with: .none)
+        tableView.endUpdates()
+        
         tableView.isHidden = false
         emptyView.isHidden = true
     }
@@ -97,13 +103,14 @@ extension MainModuleView: UITableViewDelegate {
             }
         }
     }
+}
+
+extension MainModuleView: UITableViewDataSourcePrefetching {
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == icons.count - 6, presenter.canLoadMore {
-            presenter.loadMoreIcons { indexPaths in
-                tableView.insertRows(at: indexPaths, with: .fade)
-            }
-        }
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        let rows = indexPaths.map { $0.row }
+        guard let index = rows.max() else { return }
+        presenter.loadMoreIcons(index: index)
     }
 }
 
@@ -118,16 +125,15 @@ extension MainModuleView: UITableViewDataSource {
         }
         let icon = icons[indexPath.row]
         
-        cell.configure(with: icon)
+        cell.configure(with: icon) { [weak self] in
+            guard let self else { return }
+            presenter.cancelLoadingImage(urlString: icon.previewURL)
+        }
         
         presenter.loadImage(urlString: icon.previewURL) { image in
             cell.setImage(image)
         }
         
-        cell.onReuse = { [weak self] in
-            guard let self else { return }
-            presenter.cancelLoadingImage(urlString: icon.previewURL)
-        }
         return cell
     }
 }
@@ -147,18 +153,18 @@ private extension MainModuleView {
         emptyView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-                    tableView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-                    tableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
-                    tableView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
-                    tableView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-                    
-                    spinner.centerXAnchor.constraint(equalTo: centerXAnchor),
-                    spinner.centerYAnchor.constraint(equalTo: centerYAnchor),
-                    
-                    emptyView.topAnchor.constraint(equalTo: tableView.topAnchor),
-                    emptyView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor),
-                    emptyView.leadingAnchor.constraint(equalTo: tableView.leadingAnchor),
-                    emptyView.trailingAnchor.constraint(equalTo: tableView.trailingAnchor)
-                ])
+            tableView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+            
+            spinner.centerXAnchor.constraint(equalTo: centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: centerYAnchor),
+            
+            emptyView.topAnchor.constraint(equalTo: tableView.topAnchor),
+            emptyView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor),
+            emptyView.leadingAnchor.constraint(equalTo: tableView.leadingAnchor),
+            emptyView.trailingAnchor.constraint(equalTo: tableView.trailingAnchor)
+        ])
     }
 }

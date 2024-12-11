@@ -8,8 +8,7 @@
 import UIKit
 
 final class IconTableViewCell: UITableViewCell {
-    
-    var onReuse: () -> Void = { }
+    private var onReuse: (() -> Void)?
     
     private lazy var iconImageView: UIImageView = {
         let view = UIImageView()
@@ -102,12 +101,13 @@ final class IconTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         iconImageView.image = nil
-        onReuse()
+        onReuse?()
     }
     
-    func configure(with model: MainModuleIconModel) {
+    func configure(with model: MainModuleIconModel, onReuse: @escaping () -> Void) {
         titleLabel.text = "\(model.maxWidth) x \(model.maxHeight)"
         tagsLabel.text = model.tags
+        self.onReuse = onReuse
         spinner.startAnimating()
     }
     

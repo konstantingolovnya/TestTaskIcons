@@ -61,8 +61,8 @@ extension MainModuleViewController: MainModuleViewProtocol {
         mainModuleView.update(icons)
     }
     
-    func displayAdittionalIcons(_ icons: [MainModuleIconModel]) {
-        mainModuleView.addNew(icons)
+    func displayAdittionalIcons(_ icons: [MainModuleIconModel], at indexPaths: [IndexPath]) {
+        mainModuleView.addNew(icons, at: indexPaths)
     }
     
     func startSpinner() {
