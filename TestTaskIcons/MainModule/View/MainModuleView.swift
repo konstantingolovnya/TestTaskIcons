@@ -125,7 +125,8 @@ extension MainModuleView: UITableViewDataSource {
         }
         let icon = icons[indexPath.row]
         
-        cell.configure(with: icon) { [weak self] in
+        cell.configure(with: icon)
+        cell.onReuse = { [weak self] in
             guard let self else { return }
             presenter.cancelLoadingImage(urlString: icon.previewURL)
         }
